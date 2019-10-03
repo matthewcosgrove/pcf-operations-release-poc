@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+REPO_ROOT_DIR="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd ))"
+
+TMPDIR=""
+TMPDIR=$(mktemp -d -t repipe.XXXXXX)
+trap "rm -rf ${TMPDIR}" INT TERM QUIT EXIT
+
+spruce merge --prune meta ${REPO_ROOT_DIR}/ci/pipeline.yml ${REPO_ROOT_DIR}/ci/settings.yml > ${TMPDIR}/pipeline.yml
+
+fly -t bucc-ci-infra set-pipeline -n -p pcf-operations-release -c ${TMPDIR}/pipeline.yml
+fly -t bucc-ci-infra unpause-pipeline -p pcf-operations-release
+

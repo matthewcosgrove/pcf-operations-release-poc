@@ -1,0 +1,12 @@
+meta:
+  repo_uri: git@gitlab.com:dellemc-hetzner/bucc-automation/pcf-operations-release.git
+  git_tag: master
+  git_private_key: ((gitlab_ssh.private_key))
+  ci_docker_image: pcfautomation/boshaas-automation-release-image
+  ci_docker_image_tag: edge
+  testflight_vcenter_user: ((testflight_vcenter_user))
+  testflight_vcenter_password: ((testflight_vcenter_password))
+  minio_ip: ((minio_ip))
+  minio_access_key: ((minio_access_key))
+  minio_secret_key: ((minio_secret_key))
+

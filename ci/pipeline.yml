@@ -1,0 +1,62 @@
+meta:
+  repo_uri: (( param "Please provide repo_uri" ))
+  git_tag: (( param "Please provise git_tag" ))
+  git_private_key: (( param "Please provide git_private_key" ))
+  ci_docker_image: (( param "Please provide ci_docker_image" ))
+  ci_docker_image_tag: (( param "Please provide ci_docker_tag" ))
+
+  testflight_vcenter_user: (( param "Please provide testflight vcenter user" ))
+  testflight_vcenter_password: (( param "Please provide testflight vcenter password" ))
+  minio_access_key: (( param "Please provide minio_access_key" ))
+  minio_secret_key: (( param "Please provide minio_secret_key" ))
+  minio_ip: (( param "Please provide minio_ip" ))
+  minio_url: (( concat "http://" meta.minio_ip ":9001" ))
+
+  task_image:
+    type: docker-image
+    source:
+      repository: (( grab meta.ci_docker_image ))
+      tag: (( grab meta.ci_docker_image_tag ))  
+
+groups:
+- name: testflight-dependencies
+  jobs:
+  - deploy-testflight-opsman
+
+jobs:
+- name: deploy-testflight-opsman
+  serial: true
+  plan:
+  - task: check-opsman-via-pivotal-platform-automation-prerequisites------pivnet
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      params:
+        PIVNET_TOKEN: "((pivnet-token))"
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          set -eu
+          curl -f -i -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Token $PIVNET_TOKEN" -X GET https://network.pivotal.io/api/v2/authentication
+  - task: check-opsman-via-pivotal-platform-automation-prerequisites------s3
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      params:
+        MINIO_ACCESS_KEY: (( grab meta.minio_access_key ))
+        MINIO_SECRET_KEY: (( grab meta.minio_secret_key ))
+        MINIO_URL: (( grab meta.minio_url ))
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          : "${MINIO_URL:? MINIO_URL must be set }"
+          : "${MINIO_ACCESS_KEY:? MINIO_ACCESS_KEY must be set }"
+          : "${MINIO_SECRET_KEY:? MINIO_SECRET_KEY must be set }"
+
+          set -eu
+          mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+          mc --debug ls minio
