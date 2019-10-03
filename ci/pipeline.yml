@@ -27,12 +27,23 @@ jobs:
 - name: deploy-testflight-opsman
   serial: true
   plan:
+  - get: platform-automation-image
+    resource: platform-automation
+    params:
+      globs: ["*image*.tgz"]
+      unpack: true
+  - get: platform-automation-tasks
+    resource: platform-automation
+    params:
+      globs: ["*tasks*.zip"]
+      unpack: true
+  - get: config
   - task: check-opsman-via-pivotal-platform-automation-prerequisites------pivnet
     config:
       platform: linux
       image_resource: (( grab meta.task_image ))
       params:
-        PIVNET_TOKEN: "((pivnet-token))"
+        PIVNET_TOKEN: "((pivnet-refresh-token))"
       run:
         path: sh
         args:
@@ -60,3 +71,27 @@ jobs:
           set -eu
           mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
           mc --debug ls minio
+  - task: download-product
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/download-product.yml
+    params:
+      CONFIG_FILE: download-ops-manager.yml
+
+resource_types:
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+resources:
+- name: platform-automation
+  type: pivnet
+  source:
+    product_slug: platform-automation
+    api_token: ((pivnet-refresh-token))
+- name: config
+  type: git
+  source:
+    uri: (( grab meta.repo_uri ))
+    private_key: (( grab meta.git_private_key ))
+    branch: master

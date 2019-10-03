@@ -1,5 +1,5 @@
 meta:
-  repo_uri: git@gitlab.com:dellemc-hetzner/bucc-automation/pcf-operations-release.git
+  repo_uri: ((git_repo_uri))
   git_tag: master
   git_private_key: ((gitlab_ssh.private_key))
   ci_docker_image: pcfautomation/boshaas-automation-release-image
