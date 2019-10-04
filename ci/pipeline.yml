@@ -71,11 +71,43 @@ jobs:
           set -eu
           mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
           mc --debug ls minio
+  - task: check-task-yml
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      inputs:
+      - name: platform-automation-tasks
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          cat platform-automation-tasks/tasks/credhub-interpolate.yml
+          ls -la platform-automation-tasks/tasks/
+          cat platform-automation-tasks/tasks/download-product.yml
+          cat platform-automation-tasks/tasks/download-product.sh
+  - task: interpolate-env-creds
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/credhub-interpolate.yml
+    params:
+      CREDHUB_CLIENT: ((credhub_username))
+      CREDHUB_SECRET: ((credhub_password))
+      CREDHUB_SERVER: ((credhub_url))
+      CREDHUB_CA_CERT: ((credhub_ca_cert))
+      PREFIX: '/concourse/main'
+      INTERPOLATION_PATHS: config
+      SKIP_MISSING: true
+    input_mapping:
+      files: config
+    output_mapping:
+      interpolated-files: interpolated-config
   - task: download-product
     image: platform-automation-image
     file: platform-automation-tasks/tasks/download-product.yml
     params:
-      CONFIG_FILE: download-ops-manager.yml
+      CONFIG_FILE: config/download-ops-manager.yml
+    input_mapping:
+      config: interpolated-config
 
 resource_types:
 - name: pivnet
