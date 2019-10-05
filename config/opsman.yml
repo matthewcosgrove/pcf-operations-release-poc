@@ -5,7 +5,7 @@ opsman-configuration:
       url: ((testflight_vcenter_ip))
       username: ((testflight_vcenter_user))
       password: ((testflight_vcenter_password))
-      datastore: wine-ds
+      datastore: ((testflight_vcenter_datastore))
       ca_cert: ((testflight_vcenter_ca_cert))
       host: ((testflight_vcenter_host_full_govc_path))                     # vCenter host to deploy Ops Manager in
       datacenter: ((testflight_vcenter_datacenter))
@@ -13,15 +13,15 @@ opsman-configuration:
       folder: ((testflight_vcenter_vms_full_govc_path))
       insecure: 1                            # default: 0 (secure); 1 (insecure)
     disk_type: thin                          # example: thin|thick
-    private_ip: 10.0.0.30
-    dns: 8.8.8.8
-    ntp: 0.de.pool.ntp.org                    # example: ntp.ubuntu.com
-    ssh_password: password                   
-    ssh_public_key: ssh-rsa ......           # for Ops Manager >= 2.3, required for Ops Manager >= 2.6
-    hostname: pcf.example.com
-    network: drinks-chardonnay-pg                 # vcenter network to deploy to
-    netmask: 255.255.255.0
-    gateway: 10.0.0.1
-    vm_name: Ops_Manager                     # default: Ops_Manager
+    private_ip: ((testflight_opsman_ip))
+    dns: ((testflight_vcenter_dns))
+    ntp: ((testflight_opsman_ntp))                    # example: ntp.ubuntu.com
+    ssh_password: ((testflight_opsman_ssh_password))
+    ssh_public_key: ((testflight_opsman_ssh_public_key))           # for Ops Manager >= 2.3, required for Ops Manager >= 2.6
+    hostname: ((testflight_opsman_hostname))
+    network: ((testflight_vcenter_network))                 # vcenter network to deploy to
+    netmask: ((tesflight_vcenter_netmask))
+    gateway: ((testflight_vcenter_gateway))
+    vm_name: ((testflight_opsman_vm_name))                     # default: Ops_Manager
     memory: 8                                # default: 8 GB
     cpu: 1                                   # default: 1
