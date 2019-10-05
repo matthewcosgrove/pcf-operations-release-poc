@@ -10,7 +10,7 @@ opsman-configuration:
       host: ((testflight_vcenter_host_full_govc_path))                     # vCenter host to deploy Ops Manager in
       datacenter: ((testflight_vcenter_datacenter))
       resource_pool: ((testflight_vcenter_resource_pool_full_govc_path)) # or /<Data Center Name>/host/<Cluster Name>
-      folder: ((testflight_vcenter_vms_govc_full_path))
+      folder: ((testflight_vcenter_vms_full_govc_path))
       insecure: 1                            # default: 0 (secure); 1 (insecure)
     disk_type: thin                          # example: thin|thick
     private_ip: 10.0.0.30
