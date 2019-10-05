@@ -7,7 +7,7 @@ opsman-configuration:
       password: ((testflight_vcenter_password))
       datastore: wine-ds
       ca_cert: ((testflight_vcenter_ca_cert))
-      host: example-host                     # vCenter host to deploy Ops Manager in
+      host: drinks-cl                     # vCenter host to deploy Ops Manager in
       datacenter: ((testflight_vcenter_datacenter))
       resource_pool: /((testflight_vcenter_datacenter))/host/drinks-cl/Resources/chardonnay # or /<Data Center Name>/host/<Cluster Name>
       folder: /((testflight_vcenter_datacenter))/vm/pcf_operations_vms
