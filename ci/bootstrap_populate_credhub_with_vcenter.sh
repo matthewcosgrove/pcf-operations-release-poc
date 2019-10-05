@@ -2,6 +2,8 @@
 set -eu
 credhub set -t value -n /concourse/main/testflight_vcenter_user -v $GOVC_USERNAME
 credhub set -t password -n /concourse/main/testflight_vcenter_password -w $GOVC_PASSWORD
+credhub set -t value -n /concourse/main/testflight_opsman_ssh_public_key -v "$(cat ~/.ssh/*.pub)" # Assume we on the Tools VM used for all connectivity so configure the public key from here
+credhub generate -t password -n /concourse/main/testflight_opsman_ssh_password # TODO: This should be generated during the OpsMan deployment within a Concourse task
 
 # Everything below is deprecated as the preferred approach will be to externalise the vars file to a private git repo and have the pipeline dynamically produce the config/vars.yml for all non-sensitive vars (for better auditability of environment specific config)
 credhub set -t value -n /concourse/main/testflight_vcenter_ip -v $GOVC_URL
@@ -21,7 +23,4 @@ credhub set -t value -n /concourse/main/testflight_vcenter_netmask -v "$(bosh in
 credhub set -t value -n /concourse/main/testflight_opsman_ntp -v "$(bosh int --path=/opsman_ntp $INPUT_VARS_YAML)"
 credhub set -t value -n /concourse/main/testflight_opsman_hostname -v "$(bosh int --path=/testflight_opsman_hostname $INPUT_VARS_YAML)"
 credhub set -t value -n /concourse/main/testflight_opsman_vm_name -v "$(bosh int --path=/testflight_opsman_vm_name $INPUT_VARS_YAML)"
-
-credhub set -t value -n /concourse/main/testflight_opsman_ssh_public_key -v "$(cat ~/.ssh/*.pub)"
-credhub generate -t password -n /concourse/main/testflight_opsman_ssh_password
 
