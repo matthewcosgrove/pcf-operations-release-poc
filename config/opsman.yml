@@ -7,10 +7,10 @@ opsman-configuration:
       password: ((testflight_vcenter_password))
       datastore: wine-ds
       ca_cert: ((testflight_vcenter_ca_cert))
-      host: ((testflight_vcenter_host))                     # vCenter host to deploy Ops Manager in
+      host: ((testflight_vcenter_host_full_govc_path))                     # vCenter host to deploy Ops Manager in
       datacenter: ((testflight_vcenter_datacenter))
-      resource_pool: /((testflight_vcenter_datacenter))/host/drinks-cl/Resources/chardonnay # or /<Data Center Name>/host/<Cluster Name>
-      folder: /((testflight_vcenter_datacenter))/vm/pcf_operations_vms
+      resource_pool: ((testflight_vcenter_resource_pool_full_govc_path)) # or /<Data Center Name>/host/<Cluster Name>
+      folder: ((testflight_vcenter_vms_govc_full_path))
       insecure: 1                            # default: 0 (secure); 1 (insecure)
     disk_type: thin                          # example: thin|thick
     private_ip: 10.0.0.30
