@@ -20,7 +20,7 @@ opsman-configuration:
     ssh_public_key: ((testflight_opsman_ssh_public_key))           # for Ops Manager >= 2.3, required for Ops Manager >= 2.6
     hostname: ((testflight_opsman_hostname))
     network: ((testflight_vcenter_network))                 # vcenter network to deploy to
-    netmask: ((tesflight_vcenter_netmask))
+    netmask: ((testflight_vcenter_netmask))
     gateway: ((testflight_vcenter_gateway))
     vm_name: ((testflight_opsman_vm_name))                     # default: Ops_Manager
     memory: 8                                # default: 8 GB
