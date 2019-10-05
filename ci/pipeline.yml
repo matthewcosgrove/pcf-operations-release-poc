@@ -144,9 +144,12 @@ jobs:
         - -ec
         - |
           cat platform-automation-tasks/tasks/credhub-interpolate.yml
+          cat platform-automation-tasks/tasks/credhub-interpolate.sh
           ls -la platform-automation-tasks/tasks/
           cat platform-automation-tasks/tasks/download-product.yml
           cat platform-automation-tasks/tasks/download-product.sh
+          cat platform-automation-tasks/tasks/create-vm.yml
+          cat platform-automation-tasks/tasks/create-vm.sh
   - task: interpolate-env-creds
     image: platform-automation-image
     file: platform-automation-tasks/tasks/credhub-interpolate.yml
@@ -162,6 +165,48 @@ jobs:
       files: config
     output_mapping:
       interpolated-files: interpolated-config
+  - task: check-interpolated-config
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      inputs:
+      - name: interpolated-config
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          cat interpolated-config/config/*
+  - task: remove-testflight-opsman-if-exists
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      params:
+        GOVC_URL: ((testflight_vcenter_ip))
+        GOVC_DATACENTER: ((testflight_vcenter_datacenter))
+        GOVC_USERNAME: (( grab meta.testflight_vcenter_user ))
+        GOVC_PASSWORD: (( grab meta.testflight_vcenter_password ))
+      inputs:
+      - name: interpolated-config
+      run:
+        path: bash
+        args:
+        - -ec
+        - |
+          set -eu
+          : "${GOVC_URL:? GOVC_URL must be set }"
+          : "${GOVC_DATACENTER:? GOVC_DATACENTER must be set }"
+          : "${GOVC_USERNAME:? GOVC_USERNAME must be set }"
+          : "${GOVC_PASSWORD:? GOVC_PASSWORD must be set }"
+
+          export GOVC_INSECURE=true
+          opsman_ip=$(bosh int --path=/opsman-configuration/vsphere/private_ip interpolated-config/config/opsman.yml)
+          echo "Starting opsman removal if exists for $opsman_ip"
+          set +e
+          govc vm.info --vm.ip $opsman_ip 
+          govc vm.destroy --vm.ip $opsman_ip 
+          set -e
+          echo "Completed opsman removal if exists for $opsman_ip"
   - task: download-product
     image: platform-automation-image
     file: platform-automation-tasks/tasks/download-product.yml
@@ -169,6 +214,15 @@ jobs:
       CONFIG_FILE: config/download-ops-manager.yml
     input_mapping:
       config: interpolated-config
+  - task: create-vm
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/create-vm.yml
+    params:
+      OPSMAN_CONFIG_FILE: config/opsman.yml
+    input_mapping:
+      config: interpolated-config
+      state: config
+      image: downloaded-product
 
 resource_types:
 - name: pivnet
