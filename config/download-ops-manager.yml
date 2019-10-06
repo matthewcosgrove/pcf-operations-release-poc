@@ -4,6 +4,7 @@ pivnet-file-glob: "ops-manager-vsphere*.ova"
 pivnet-product-slug: ops-manager
 product-version-regex: ^2\.5\.\d+$
 
+s3-endpoint: ((minio_url))
 s3-access-key-id: ((minio_access_key))
 s3-secret-access-key: ((minio_secret_key))
 s3-bucket: ((minio_pivnet_products_bucket))
