@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -eu
 : "${GOVC_URL:? GOVC_URL must be set }"
 : "${GOVC_DATACENTER:? GOVC_DATACENTER must be set }"
