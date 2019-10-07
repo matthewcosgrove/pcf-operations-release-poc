@@ -1,4 +1,4 @@
 ---
-username: ((opsman_api_username))
-password: ((opsman_api_password))
-decryption-passphrase: ((opsman_decryption_passphrase))
+username: ((testflight_opsman_api_username))
+password: ((testflight_opsman_api_password))
+decryption-passphrase: ((testflight_opsman_decryption_passphrase))
