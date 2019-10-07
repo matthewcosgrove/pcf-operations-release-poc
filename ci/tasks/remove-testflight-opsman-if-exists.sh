@@ -21,7 +21,9 @@ export GOVC_INSECURE=true
 opsman_ip=$(bosh int --path=/opsman-configuration/vsphere/private_ip interpolated-config/config/opsman.yml)
 echo "Starting opsman removal if exists for $opsman_ip"
 set +e
+echo "Output from vm.info for ip $opsman_ip NOTE: If VM does not exist the govc output will indicate so"
 govc vm.info --vm.ip $opsman_ip 
+echo "Executing vm.destroy.."
 govc vm.destroy --vm.ip $opsman_ip 
 set -e
 echo "Completed opsman removal if exists for $opsman_ip"

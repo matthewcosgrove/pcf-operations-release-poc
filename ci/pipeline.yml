@@ -9,8 +9,9 @@ meta:
   testflight_vcenter_password: (( param "Please provide testflight vcenter password" ))
   minio_access_key: (( param "Please provide minio_access_key" ))
   minio_secret_key: (( param "Please provide minio_secret_key" ))
-  minio_ip: (( param "Please provide minio_ip" ))
-  minio_url: (( concat "http://" meta.minio_ip ":9001" ))
+  minio_url: (( param "Please provide minio_url" ))
+  minio_region: (( param "Please provide minio_region" ))
+  minio_bucket_for_pivotal_product: (( param "Please provide minio_bucket_for_pivotal_product" ))
 
   task_image:
     type: docker-image
@@ -19,6 +20,10 @@ meta:
       tag: (( grab meta.ci_docker_image_tag ))  
 
 groups:
+- name: pivnet-downloads
+  jobs:
+  - fetch-opsman
+  - fetch-platform-automation
 - name: testflight-dependencies
   jobs:
   - deploy-testflight-opsman
@@ -27,50 +32,17 @@ jobs:
 - name: deploy-testflight-opsman
   serial: true
   plan:
-  - get: platform-automation-image
-    resource: platform-automation
-    params:
-      globs: ["*image*.tgz"]
-      unpack: true
-  - get: platform-automation-tasks
-    resource: platform-automation
-    params:
-      globs: ["*tasks*.zip"]
-      unpack: true
-  - get: config
-  - task: check-opsman-via-pivotal-platform-automation-prerequisites------pivnet
-    config:
-      platform: linux
-      image_resource: (( grab meta.task_image ))
+  - aggregate:
+    #- get: daily
+    #  trigger: true
+    - get: platform-automation-image
       params:
-        PIVNET_TOKEN: "((pivnet-refresh-token))"
-      run:
-        path: sh
-        args:
-        - -ec
-        - |
-          set -eu
-          curl -f -i -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Token $PIVNET_TOKEN" -X GET https://network.pivotal.io/api/v2/authentication
-  - task: check-opsman-via-pivotal-platform-automation-prerequisites------s3
-    config:
-      platform: linux
-      image_resource: (( grab meta.task_image ))
+        unpack: true
+    - get: platform-automation-tasks
       params:
-        MINIO_ACCESS_KEY: (( grab meta.minio_access_key ))
-        MINIO_SECRET_KEY: (( grab meta.minio_secret_key ))
-        MINIO_URL: (( grab meta.minio_url ))
-      run:
-        path: sh
-        args:
-        - -ec
-        - |
-          : "${MINIO_URL:? MINIO_URL must be set }"
-          : "${MINIO_ACCESS_KEY:? MINIO_ACCESS_KEY must be set }"
-          : "${MINIO_SECRET_KEY:? MINIO_SECRET_KEY must be set }"
-
-          set -eu
-          mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
-          mc --debug ls minio
+        unpack: true
+    - get: config
+    - get: ci-tasks
   - task: check-opsman-via-pivotal-platform-automation-prerequisites------vcenter connectivity
     config:
       platform: linux
@@ -80,76 +52,10 @@ jobs:
         GOVC_DATACENTER: ((testflight_vcenter_datacenter))
         GOVC_USERNAME: (( grab meta.testflight_vcenter_user ))
         GOVC_PASSWORD: (( grab meta.testflight_vcenter_password ))
-      run:
-        path: bash
-        args:
-        - -ec
-        - |
-          set -eu
-          : "${GOVC_URL:? GOVC_URL must be set }"
-          : "${GOVC_DATACENTER:? GOVC_DATACENTER must be set }"
-          : "${GOVC_USERNAME:? GOVC_USERNAME must be set }"
-          : "${GOVC_PASSWORD:? GOVC_PASSWORD must be set }"
-
-          export GOVC_INSECURE=true
-
-          RED='\033[0;31m'
-          GREEN='\033[0;32m'
-          NO_COLOR='\033[0m'
-
-          env | grep -v 'GOVC_PASSWORD' | grep 'GOVC_'
-          printf "\n"
-          result=1
-
-          set +e
-          printf "Testing vCenter connectivity...\n"
-          govc about
-          if [[ $? -ne 0 ]]; then
-            printf "${RED}Failed!${NO_COLOR}\n\n"
-            let result=0
-          else
-            printf "${GREEN}OK.${NO_COLOR}\n\n"
-          fi
-          set -e
-
-          #Datacenter
-          set +e
-          printf "Checking existence of datacenter $GOVC_DATACENTER...\n"
-          govc datacenter.info $GOVC_DATACENTER
-          if [ $? -ne 0 ]; then
-            printf "${RED}Failed!${NO_COLOR}\n\n"
-            let result=0
-          else
-            printf "${GREEN}OK.${NO_COLOR}\n\n"
-          fi
-          set -e
-
-          if [ $result -eq 1 ]; then
-            printf "${GREEN}Success!${NO_COLOR}\n"
-          else
-            printf "${RED}One or more checks failed! :(${NO_COLOR}\n"
-            exit 1
-          fi
-
-
-  - task: check-task-yml
-    config:
-      platform: linux
-      image_resource: (( grab meta.task_image ))
       inputs:
-      - name: platform-automation-tasks
+      - name: ci-tasks
       run:
-        path: sh
-        args:
-        - -ec
-        - |
-          cat platform-automation-tasks/tasks/credhub-interpolate.yml
-          cat platform-automation-tasks/tasks/credhub-interpolate.sh
-          ls -la platform-automation-tasks/tasks/
-          cat platform-automation-tasks/tasks/download-product.yml
-          cat platform-automation-tasks/tasks/download-product.sh
-          cat platform-automation-tasks/tasks/create-vm.yml
-          cat platform-automation-tasks/tasks/create-vm.sh
+        path: ci-tasks/ci/tasks/check-vcenter-connectivity.sh
   - task: interpolate-env-creds
     image: platform-automation-image
     file: platform-automation-tasks/tasks/credhub-interpolate.yml
@@ -165,18 +71,6 @@ jobs:
       files: config
     output_mapping:
       interpolated-files: interpolated-config
-  - task: check-interpolated-config
-    config:
-      platform: linux
-      image_resource: (( grab meta.task_image ))
-      inputs:
-      - name: interpolated-config
-      run:
-        path: sh
-        args:
-        - -ec
-        - |
-          cat interpolated-config/config/*
   - task: remove-testflight-opsman-if-exists
     config:
       platform: linux
@@ -187,41 +81,14 @@ jobs:
         GOVC_USERNAME: (( grab meta.testflight_vcenter_user ))
         GOVC_PASSWORD: (( grab meta.testflight_vcenter_password ))
       inputs:
+      - name: ci-tasks
       - name: config
       - name: interpolated-config
       run:
-        path: bash
-        args:
-        - -ec
-        - |
-          set -eu
-          : "${GOVC_URL:? GOVC_URL must be set }"
-          : "${GOVC_DATACENTER:? GOVC_DATACENTER must be set }"
-          : "${GOVC_USERNAME:? GOVC_USERNAME must be set }"
-          : "${GOVC_PASSWORD:? GOVC_PASSWORD must be set }"
-
-          state_yaml_location=config
-          state_yaml=$state_yaml_location/state.yml
-          if [ -f "$state_yaml" ]; then
-              pushd $state_yaml_location > /dev/null
-              upstream_repo=$(git remote -v | awk 'NR==1 {print $2}')
-              popd > /dev/null
-              echo "$state_yaml exists. Skipping removal of OpsMan VM. To enable removing the OpsMan VM, delete the state.yml file, commit and push to $upstream_repo"
-              exit 0
-          else
-              echo "$state_yaml does not exist. Proceeding with removal"
-          fi
-          export GOVC_INSECURE=true
-          opsman_ip=$(bosh int --path=/opsman-configuration/vsphere/private_ip interpolated-config/config/opsman.yml)
-          echo "Starting opsman removal if exists for $opsman_ip"
-          set +e
-          govc vm.info --vm.ip $opsman_ip 
-          govc vm.destroy --vm.ip $opsman_ip 
-          set -e
-          echo "Completed opsman removal if exists for $opsman_ip"
+        path: ci-tasks/ci/tasks/remove-testflight-opsman-if-exists.sh
   - task: download-product
     image: platform-automation-image
-    file: platform-automation-tasks/tasks/download-product.yml
+    file: platform-automation-tasks/tasks/download-product-s3.yml
     params:
       CONFIG_FILE: config/download-ops-manager.yml
     input_mapping:
@@ -255,6 +122,145 @@ jobs:
             repository: config-commit
             merge: true
 
+
+- name: fetch-platform-automation
+  # We use the pivnet resource to bootstrap the pipeline,
+  # and because this product is part of the pipeline, not the foundation
+  plan:
+  - get: platform-automation-pivnet
+    trigger: true
+  - task: check-pivotal-platform-automation-prerequisites------pivnet
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      params:
+        PIVNET_TOKEN: "((pivnet-refresh-token))"
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          set -eu
+          curl -f -i -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Token $PIVNET_TOKEN" -X GET https://network.pivotal.io/api/v2/authentication
+  - task: check-pivotal-platform-automation-prerequisites------s3
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      params:
+        MINIO_ACCESS_KEY: (( grab meta.minio_access_key ))
+        MINIO_SECRET_KEY: (( grab meta.minio_secret_key ))
+        MINIO_URL: (( grab meta.minio_url ))
+        MINIO_REGION: (( grab meta.minio_region ))
+        MINIO_BUCKET: (( grab meta.minio_bucket_for_pivotal_product ))
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          : "${MINIO_URL:? MINIO_URL must be set }"
+          : "${MINIO_ACCESS_KEY:? MINIO_ACCESS_KEY must be set }"
+          : "${MINIO_SECRET_KEY:? MINIO_SECRET_KEY must be set }"
+          : "${MINIO_REGION:? MINIO_REGION must be set }"
+          : "${MINIO_BUCKET:? MINIO_BUCKET must be set }"
+
+          set -eu
+          mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+          mc --debug ls minio
+          mc --debug mb -p minio/${MINIO_BUCKET} --region=$MINIO_REGION
+  - aggregate:
+    - put: platform-automation-tasks
+      params:
+        file: platform-automation-pivnet/*tasks*.zip
+    - put: platform-automation-image
+      params:
+        file: platform-automation-pivnet/*image*.tgz
+- name: fetch-opsman
+  serial: true
+  plan:
+  - aggregate:
+    #- get: daily
+    #  trigger: true
+    - get: platform-automation-image
+      params:
+        unpack: true
+    - get: platform-automation-tasks
+      params:
+        unpack: true
+    - get: config
+  - task: check-opsman-via-s3-prerequisites------s3
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      params:
+        MINIO_ACCESS_KEY: (( grab meta.minio_access_key ))
+        MINIO_SECRET_KEY: (( grab meta.minio_secret_key ))
+        MINIO_URL: (( grab meta.minio_url ))
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          : "${MINIO_URL:? MINIO_URL must be set }"
+          : "${MINIO_ACCESS_KEY:? MINIO_ACCESS_KEY must be set }"
+          : "${MINIO_SECRET_KEY:? MINIO_SECRET_KEY must be set }"
+
+          set -eu
+          mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+          mc --debug ls minio
+  - task: check-task-yml
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      inputs:
+      - name: platform-automation-tasks
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          cat platform-automation-tasks/tasks/download-product.yml
+          cat platform-automation-tasks/tasks/download-product.sh
+          cat platform-automation-tasks/tasks/download-product-s3.yml
+          cat platform-automation-tasks/tasks/download-product-s3.sh
+  - task: interpolate-env-creds
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/credhub-interpolate.yml
+    params:
+      CREDHUB_CLIENT: ((credhub_username))
+      CREDHUB_SECRET: ((credhub_password))
+      CREDHUB_SERVER: ((credhub_url))
+      CREDHUB_CA_CERT: ((credhub_ca_cert))
+      PREFIX: '/concourse/main'
+      INTERPOLATION_PATHS: config
+      SKIP_MISSING: true
+    input_mapping:
+      files: config
+    output_mapping:
+      interpolated-files: interpolated-config
+  - task: check-interpolated-config
+    config:
+      platform: linux
+      image_resource: (( grab meta.task_image ))
+      inputs:
+      - name: interpolated-config
+      run:
+        path: sh
+        args:
+        - -ec
+        - |
+          cat interpolated-config/config/*
+  - task: download-product-opsman
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/download-product.yml
+    params:
+      CONFIG_FILE: config/download-ops-manager.yml
+    input_mapping:
+      config: interpolated-config
+  - aggregate:
+    - put: opsman-product
+      params:
+        file: downloaded-product/*
+
 resource_types:
 - name: pivnet
   type: docker-image
@@ -262,14 +268,57 @@ resource_types:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
 resources:
-- name: platform-automation
+- name: platform-automation-pivnet
   type: pivnet
   source:
     product_slug: platform-automation
     api_token: ((pivnet-refresh-token))
+    #product_version: 2\.(.*)
+    #sort_by: semver
 - name: config
   type: git
   source:
     uri: (( grab meta.repo_uri ))
     private_key: (( grab meta.git_private_key ))
     branch: master
+- name: ci-tasks
+  type: git
+  source:
+    private_key: (( grab meta.git_private_key ))
+    uri: (( grab meta.repo_uri ))
+    branch: (( grab meta.git_tag ))
+    paths: [ci/tasks/*]
+
+- name: opsman-product
+  type: s3
+  source:
+    endpoint: (( grab meta.minio_url ))
+    access_key_id: (( grab meta.minio_access_key ))
+    bucket: (( grab meta.minio_bucket_for_pivotal_product ))
+    region_name: (( grab meta.minio_region ))
+    secret_access_key: (( grab meta.minio_secret_key ))
+    regexp: \[ops-manager,(.*)\].*.ova
+- name: platform-automation-tasks
+  type: s3
+  source:
+    endpoint: (( grab meta.minio_url ))
+    access_key_id: (( grab meta.minio_access_key ))
+    bucket: (( grab meta.minio_bucket_for_pivotal_product ))
+    region_name: (( grab meta.minio_region ))
+    secret_access_key: (( grab meta.minio_secret_key ))
+    regexp: platform-automation-tasks-(.*).zip
+
+- name: platform-automation-image
+  type: s3
+  source:
+    endpoint: (( grab meta.minio_url ))
+    access_key_id: (( grab meta.minio_access_key ))
+    bucket: (( grab meta.minio_bucket_for_pivotal_product ))
+    region_name: (( grab meta.minio_region ))
+    secret_access_key: (( grab meta.minio_secret_key ))
+    regexp: platform-automation-image-(.*).tgz
+
+#- name: daily
+#  type: time
+#  source:
+#    interval: 24h
