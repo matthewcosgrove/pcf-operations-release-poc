@@ -55,7 +55,7 @@ properties-configuration:
     keep_unreachable_vms: false
     local_blobstore_options:
       tls_enabled: true
-    ntp_servers_string: ((testflight_infra_ntp)
+    ntp_servers_string: ((testflight_infra_ntp))
     post_deploy_enabled: false
     resurrector_enabled: true
     retry_bosh_deploys: true
