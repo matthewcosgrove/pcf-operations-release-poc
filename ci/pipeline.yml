@@ -23,6 +23,7 @@ groups:
 - name: pivnet-downloads
   jobs:
   - fetch-opsman
+  - fetch-small-footprint-ert
   - fetch-platform-automation
 - name: testflight-dependencies
   jobs:
@@ -200,6 +201,48 @@ jobs:
     - put: platform-automation-image
       params:
         file: platform-automation-pivnet/*image*.tgz
+- name: fetch-small-footprint-ert
+  serial: true
+  plan:
+  - aggregate:
+    #- get: daily
+    #  trigger: true
+    - get: platform-automation-image
+      params:
+        unpack: true
+    - get: platform-automation-tasks
+      params:
+        unpack: true
+    - get: config
+  - task: interpolate-env-creds
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/credhub-interpolate.yml
+    params:
+      CREDHUB_CLIENT: ((credhub_username))
+      CREDHUB_SECRET: ((credhub_password))
+      CREDHUB_SERVER: ((credhub_url))
+      CREDHUB_CA_CERT: ((credhub_ca_cert))
+      PREFIX: '/concourse/main'
+      INTERPOLATION_PATHS: config
+      SKIP_MISSING: true
+    input_mapping:
+      files: config
+    output_mapping:
+      interpolated-files: interpolated-config
+  - task: download-product-small-footprint-ert
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/download-product.yml
+    params:
+      CONFIG_FILE: config/download-small-footprint-ert.yml
+    input_mapping:
+      config: interpolated-config
+  - aggregate:
+    - put: ert-product
+      params:
+        file: downloaded-product/*
+
+
+
 - name: fetch-opsman
   serial: true
   plan:
@@ -324,6 +367,16 @@ resources:
     region_name: (( grab meta.minio_region ))
     secret_access_key: (( grab meta.minio_secret_key ))
     regexp: \[ops-manager,(.*)\].*.ova
+- name: ert-product
+  type: s3
+  source:
+    endpoint: (( grab meta.minio_url ))
+    access_key_id: (( grab meta.minio_access_key ))
+    bucket: (( grab meta.minio_bucket_for_pivotal_product ))
+    region_name: (( grab meta.minio_region ))
+    secret_access_key: (( grab meta.minio_secret_key ))
+    regexp: \[elastic-runtime,(.*)\].*.pivotal
+
 - name: platform-automation-tasks
   type: s3
   source:
