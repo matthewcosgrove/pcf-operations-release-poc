@@ -26,7 +26,7 @@ reserved_ip_ranges:
   - 10.0.0.45 - 10.0.0.49 # Based on CIDR /26 keep a load of IPs free for the target environments we want to rollout within the same network
   - 10.0.0.50 - 10.0.0.63 # Monitoring IPs
 
-pcf_opsman_director_config_reserved_ip_ranges: 10.0.0.2-10.0.0.29,10.0.0.40-10.0.0.63
+pcf_opsman_director_config_reserved_ip_ranges: 10.0.0.2-10.0.0.30,10.0.0.40-10.0.0.63
 
 # Pivotal Platform Automation - config/opsman.yml
 opsman_ip: 10.0.0.30
