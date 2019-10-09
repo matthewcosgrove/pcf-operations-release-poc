@@ -8,12 +8,12 @@ iaas-configurations:
   bosh_disk_path: ((testflight_vcenter_disks))
   bosh_template_folder: ((testflight_vcenter_templates))
   bosh_vm_folder: ((testflight_vcenter_vms))
-  datacenter: ((testflight_vcenter_dc))
+  datacenter: ((testflight_vcenter_datacenter))
   disk_type: thin
-  ephemeral_datastores_string: ((testflight_vcenter_ds))
+  ephemeral_datastores_string: ((testflight_vcenter_datastore))
   name: default
   nsx_networking_enabled: false
-  persistent_datastores_string: ((testflight_vcenter_ds))
+  persistent_datastores_string: ((testflight_vcenter_datastore))
   ssl_verification_enabled: false
   vcenter_host: ((testflight_vcenter_ip))
   vcenter_username: ((testflight_vcenter_user))
