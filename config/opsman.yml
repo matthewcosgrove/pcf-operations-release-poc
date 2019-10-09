@@ -21,7 +21,7 @@ opsman-configuration:
     hostname: ((testflight_opsman_hostname))
     network: ((testflight_vcenter_network))                 # vcenter network to deploy to
     netmask: ((testflight_vcenter_netmask))
-    gateway: ((testflight_vcenter_gateway))
+    gateway: ((testflight_network_gateway))
     vm_name: ((testflight_opsman_vm_name))                     # default: Ops_Manager
     memory: 8                                # default: 8 GB
     cpu: 1                                   # default: 1

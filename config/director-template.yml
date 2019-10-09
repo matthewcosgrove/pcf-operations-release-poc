@@ -1,0 +1,83 @@
+az-configuration:
+- name: az1
+  clusters:
+  - cluster: ((testflight_vcenter_cluster))
+    resource_pool: ((testflight_vcenter_rp))
+iaas-configurations:
+- additional_cloud_properties: {}
+  bosh_disk_path: ((testflight_vcenter_disks))
+  bosh_template_folder: ((testflight_vcenter_templates))
+  bosh_vm_folder: ((testflight_vcenter_vms))
+  datacenter: ((testflight_vcenter_dc))
+  disk_type: thin
+  ephemeral_datastores_string: ((testflight_vcenter_ds))
+  name: default
+  nsx_networking_enabled: false
+  persistent_datastores_string: ((testflight_vcenter_ds))
+  ssl_verification_enabled: false
+  vcenter_host: ((testflight_vcenter_ip))
+  vcenter_username: ((testflight_vcenter_user))
+network-assignment:
+  network:
+    name: ((testflight_vcenter_network))
+  other_availability_zones: []
+  singleton_availability_zone:
+    name: az1
+networks-configuration:
+  icmp_checks_enabled: true
+  networks:
+  - name: ((testflight_vcenter_network))
+    subnets:
+    - iaas_identifier: ((testflight_vcenter_network))
+      cidr: ((testflight_network_cidr))
+      dns: ((testflight_vcenter_dns))
+      gateway: ((testflight_network_gateway))
+      reserved_ip_ranges: ((testflight_pcf_opsman_director_config_reserved_ip_ranges))
+      availability_zone_names:
+      - az1
+properties-configuration:
+  director_configuration:
+    blobstore_type: local
+    bosh_recreate_on_next_deploy: false
+    bosh_recreate_persistent_disks_on_next_deploy: false
+    database_type: internal
+    director_worker_count: 5
+    encryption:
+      keys: []
+      providers: []
+    hm_emailer_options:
+      enabled: false
+    hm_pager_duty_options:
+      enabled: false
+    identification_tags: {}
+    job_configuration_on_tmpfs: false
+    keep_unreachable_vms: false
+    local_blobstore_options:
+      tls_enabled: true
+    ntp_servers_string: ((testflight_infra_ntp)
+    post_deploy_enabled: false
+    resurrector_enabled: true
+    retry_bosh_deploys: true
+    skip_director_drain: false
+  dns_configuration:
+    excluded_recursors: []
+    handlers: []
+  security_configuration:
+    generate_vm_passwords: true
+    opsmanager_root_ca_trusted_certs: false
+  syslog_configuration:
+    enabled: false
+resource-configuration:
+  compilation:
+    instances: automatic
+    instance_type:
+      id: automatic
+  director:
+    instances: automatic
+    persistent_disk:
+      size_mb: automatic
+    instance_type:
+      id: automatic
+vmextensions-configuration: []
+vmtypes-configuration: {}
+
