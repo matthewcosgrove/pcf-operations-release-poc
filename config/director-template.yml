@@ -17,6 +17,7 @@ iaas-configurations:
   ssl_verification_enabled: false
   vcenter_host: ((testflight_vcenter_ip))
   vcenter_username: ((testflight_vcenter_user))
+  vcenter_password: ((testflight_vcenter_password))
 network-assignment:
   network:
     name: ((testflight_vcenter_network))
