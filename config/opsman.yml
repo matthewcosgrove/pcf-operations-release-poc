@@ -15,7 +15,7 @@ opsman-configuration:
     disk_type: thin                          # example: thin|thick
     private_ip: ((testflight_opsman_ip))
     dns: ((testflight_vcenter_dns))
-    ntp: ((testflight_opsman_ntp))                    # example: ntp.ubuntu.com
+    ntp: ((testflight_infra_ntp))                    # example: ntp.ubuntu.com
     ssh_password: ((testflight_opsman_ssh_password))
     ssh_public_key: ((testflight_opsman_ssh_public_key))           # for Ops Manager >= 2.3, required for Ops Manager >= 2.6
     hostname: ((testflight_opsman_hostname))
