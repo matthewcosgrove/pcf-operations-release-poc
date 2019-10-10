@@ -189,6 +189,7 @@ jobs:
     params:
       ENV_FILE: config/env.yml
       DIRECTOR_CONFIG_FILE: config/director-template.yml
+    attempts: 3
     input_mapping:
       config: interpolated-creds
       env: interpolated-creds
