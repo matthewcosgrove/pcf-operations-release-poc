@@ -19,7 +19,7 @@ meta:
       repository: (( grab meta.ci_docker_image ))
       tag: (( grab meta.ci_docker_image_tag ))  
 
-interpolate-env-creds: &interpolate-env-creds
+interpolate-creds: &interpolate-creds
   image: platform-automation-image
   file: platform-automation-tasks/tasks/credhub-interpolate.yml
   params:
@@ -33,20 +33,20 @@ interpolate-env-creds: &interpolate-env-creds
   input_mapping:
     files: config
   output_mapping:
-    interpolated-files: interpolated-config
+    interpolated-files: interpolated-creds
 
-check-interpolated-config: &check-interpolated-config
+check-interpolated-creds: &check-interpolated-creds
   config:
     platform: linux
     image_resource: (( grab meta.task_image ))
     inputs:
-    - name: interpolated-config
+    - name: interpolated-creds
     run:
       path: sh
       args:
       - -ec
       - |
-        cat interpolated-config/config/*
+        cat interpolated-creds/config/*
 
 check-s3: &check-s3
   config:
@@ -98,8 +98,6 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    #- get: daily
-    #  trigger: true
     - get: platform-automation-image
       params:
         unpack: true
@@ -121,10 +119,10 @@ jobs:
       - name: ci-tasks
       run:
         path: ci-tasks/ci/tasks/check-vcenter-connectivity.sh
-  - task: interpolate-env-creds
-    <<: *interpolate-env-creds
-  - task: check-interpolated-config
-    <<: *check-interpolated-config
+  - task: interpolate-creds
+    <<: *interpolate-creds
+  - task: check-interpolated-creds
+    <<: *check-interpolated-creds
   - task: remove-testflight-opsman-if-exists
     config:
       platform: linux
@@ -137,7 +135,7 @@ jobs:
       inputs:
       - name: ci-tasks
       - name: config
-      - name: interpolated-config
+      - name: interpolated-creds
       run:
         path: ci-tasks/ci/tasks/remove-testflight-opsman-if-exists.sh
   - task: download-product
@@ -146,14 +144,14 @@ jobs:
     params:
       CONFIG_FILE: config/download-ops-manager.yml
     input_mapping:
-      config: interpolated-config
+      config: interpolated-creds
   - task: create-vm
     image: platform-automation-image
     file: platform-automation-tasks/tasks/create-vm.yml
     params:
       OPSMAN_CONFIG_FILE: config/opsman.yml
     input_mapping:
-      config: interpolated-config
+      config: interpolated-creds
       state: config
       image: downloaded-product
     ensure:
@@ -183,8 +181,8 @@ jobs:
       AUTH_CONFIG_FILE: config/auth.yml
     attempts: 10
     input_mapping:
-      env: interpolated-config
-      config: interpolated-config
+      env: interpolated-creds
+      config: interpolated-creds
   - task: configure-director
     image: platform-automation-image
     file: platform-automation-tasks/tasks/configure-director.yml
@@ -192,15 +190,15 @@ jobs:
       ENV_FILE: config/env.yml
       DIRECTOR_CONFIG_FILE: config/director-template.yml
     input_mapping:
-      config: interpolated-config
-      env: interpolated-config
+      config: interpolated-creds
+      env: interpolated-creds
   - task: apply-director-changes
     image: platform-automation-image
     file: platform-automation-tasks/tasks/apply-director-changes.yml
     params:
       ENV_FILE: config/env.yml
     input_mapping:
-      env: interpolated-config
+      env: interpolated-creds
 
 
 - name: fetch-platform-automation
@@ -260,15 +258,15 @@ jobs:
     <<: *check-pivnet
   - task: check-prerequisites------s3
     <<: *check-s3
-  - task: interpolate-env-creds
-    <<: *interpolate-env-creds
+  - task: interpolate-creds
+    <<: *interpolate-creds
   - task: download-product-small-footprint-ert
     image: platform-automation-image
     file: platform-automation-tasks/tasks/download-product.yml
     params:
       CONFIG_FILE: config/download-small-footprint-ert.yml
     input_mapping:
-      config: interpolated-config
+      config: interpolated-creds
   - aggregate:
     - put: ert-product
       params:
@@ -291,17 +289,17 @@ jobs:
     <<: *check-pivnet
   - task: check-prerequisites------s3
     <<: *check-s3
-  - task: interpolate-env-creds
-    <<: *interpolate-env-creds
-  - task: check-interpolated-config
-    <<: *check-interpolated-config
+  - task: interpolate-creds
+    <<: *interpolate-creds
+  - task: check-interpolated-creds
+    <<: *check-interpolated-creds
   - task: download-product-opsman
     image: platform-automation-image
     file: platform-automation-tasks/tasks/download-product.yml
     params:
       CONFIG_FILE: config/download-ops-manager.yml
     input_mapping:
-      config: interpolated-config
+      config: interpolated-creds
   - aggregate:
     - put: opsman-product
       params:
