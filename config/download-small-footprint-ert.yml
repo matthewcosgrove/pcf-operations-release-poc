@@ -3,6 +3,7 @@ pivnet-api-token: ((pivnet-refresh-token))
 pivnet-file-glob: "srt*.pivotal"
 pivnet-product-slug: elastic-runtime
 product-version-regex: ^2\.7\.\d+$
+stemcell-iaas: vsphere
 
 s3-endpoint: ((minio_url))
 s3-access-key-id: ((minio_access_key))
