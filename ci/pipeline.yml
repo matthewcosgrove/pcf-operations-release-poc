@@ -91,10 +91,105 @@ groups:
   - fetch-platform-automation
 - name: testflight-dependencies
   jobs:
-  - deploy-testflight-opsman
+  - install-testflight-opsman
+  - upload-and-stage-ert
+  - configure-ert
+  - apply-product-changes
 
 jobs:
-- name: deploy-testflight-opsman
+- name: upload-and-stage-ert
+  serial: true
+  plan:
+  - aggregate:
+    - get: platform-automation-image
+      params:
+        unpack: true
+      trigger: true
+      passed: [ "install-testflight-opsman" ]
+    - get: platform-automation-tasks
+      params:
+        unpack: true
+    - get: config
+  - task: interpolate-creds
+    <<: *interpolate-creds
+  - task: download-ert
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/download-product-s3.yml
+    params:
+      CONFIG_FILE: config/download-small-footprint-ert.yml
+    input_mapping:
+      config: interpolated-creds
+    output_mapping:
+      downloaded-product: ert-product
+      downloaded-stemcell: ert-stemcell
+  - task: upload-and-stage-product
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/upload-and-stage-product.yml
+    params:
+      ENV_FILE: config/env.yml
+      CONFIG_FILE: ""
+    input_mapping:
+      product: ert-product
+      env: interpolated-creds
+  - task: upload-ert-stemcell
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/upload-stemcell.yml
+    params:
+      ENV_FILE: config/env.yml
+    input_mapping:
+      env: interpolated-creds
+      stemcell: ert-stemcell
+- name: configure-ert
+  serial: true
+  serial_groups: [ install ]
+  plan:
+  - aggregate:
+      - get: platform-automation-image
+        params:
+          unpack: true
+        passed:
+          - upload-and-stage-ert
+        trigger: true
+      - get: platform-automation-tasks
+        params:
+          unpack: true
+      - get: config
+  - task: interpolate-creds
+    <<: *interpolate-creds
+  - task: configure-ert
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/configure-product.yml
+    params:
+      ENV_FILE: config/env.yml
+      CONFIG_FILE: config/ert.yml
+    input_mapping:
+      config: interpolated-creds
+      env: interpolated-creds
+- name: apply-product-changes
+  serial: true
+  serial_groups: [ install ]
+  plan:
+  - aggregate:
+      - get: platform-automation-image
+        params:
+          unpack: true
+        passed:
+          - configure-ert
+        trigger: true
+      - get: platform-automation-tasks
+        params:
+          unpack: true
+      - get: config
+  - task: interpolate-creds
+    <<: *interpolate-creds
+  - task: apply-product-changes
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/apply-changes.yml
+    params:
+      ENV_FILE: config/env.yml
+    input_mapping:
+      env: interpolated-creds
+- name: install-testflight-opsman
   serial: true
   plan:
   - aggregate:
@@ -132,6 +227,9 @@ jobs:
         GOVC_DATACENTER: ((testflight_vcenter_datacenter))
         GOVC_USERNAME: (( grab meta.testflight_vcenter_user ))
         GOVC_PASSWORD: (( grab meta.testflight_vcenter_password ))
+        OM_URL: ((testflight_opsman_url))
+        OM_USERNAME: ((testflight_opsman_api_username))
+        OM_PASSWORD: ((testflight_opsman_api_password))
       inputs:
       - name: ci-tasks
       - name: config
@@ -198,6 +296,7 @@ jobs:
     file: platform-automation-tasks/tasks/apply-director-changes.yml
     params:
       ENV_FILE: config/env.yml
+    attempts: 3
     input_mapping:
       env: interpolated-creds
 
@@ -261,17 +360,21 @@ jobs:
     <<: *check-s3
   - task: interpolate-creds
     <<: *interpolate-creds
-  - task: download-product-small-footprint-ert
+  - task: download-product-small-footprint-ert-and-stemcell
     image: platform-automation-image
     file: platform-automation-tasks/tasks/download-product.yml
     params:
       CONFIG_FILE: config/download-small-footprint-ert.yml
     input_mapping:
       config: interpolated-creds
+    output_mapping: {downloaded-stemcell: pas-stemcell}
   - aggregate:
     - put: ert-product
       params:
         file: downloaded-product/*
+    - put: pas-stemcell
+      params:
+        file: pas-stemcell/*.tgz
 
 - name: fetch-opsman
   serial: true
@@ -352,6 +455,16 @@ resources:
     region_name: (( grab meta.minio_region ))
     secret_access_key: (( grab meta.minio_secret_key ))
     regexp: \[elastic-runtime,(.*)\].*.pivotal
+- name: pas-stemcell
+  type: s3
+  source:
+    endpoint: (( grab meta.minio_url ))
+    access_key_id: (( grab meta.minio_access_key ))
+    bucket: (( grab meta.minio_bucket_for_pivotal_product ))
+    region_name: (( grab meta.minio_region ))
+    secret_access_key: (( grab meta.minio_secret_key ))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
+
 
 - name: platform-automation-tasks
   type: s3
