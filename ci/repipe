@@ -1,6 +1,10 @@
 #!/bin/bash
 
-set -e
+set -eu
+
+fly_target=${1:-bucc}
+echo "Checking fly target: $fly_target"
+fly -t $fly_target ps
 
 REPO_ROOT_DIR="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd ))"
 
@@ -10,6 +14,6 @@ trap "rm -rf ${TMPDIR}" INT TERM QUIT EXIT
 
 spruce merge --prune meta ${REPO_ROOT_DIR}/ci/pipeline.yml ${REPO_ROOT_DIR}/ci/settings.yml > ${TMPDIR}/pipeline.yml
 
-fly -t bucc-ci-infra set-pipeline -n -p pcf-operations-release -c ${TMPDIR}/pipeline.yml
-fly -t bucc-ci-infra unpause-pipeline -p pcf-operations-release
+fly -t $fly_target set-pipeline -n -p pcf-operations-release -c ${TMPDIR}/pipeline.yml
+fly -t $fly_target unpause-pipeline -p pcf-operations-release
 

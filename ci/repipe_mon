@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -eu
+
+REPO_ROOT_DIR="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd ))"
+
+$REPO_ROOT_DIR/ci/repipe bucc-monitoring
+
