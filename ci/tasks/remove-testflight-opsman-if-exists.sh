@@ -5,6 +5,9 @@ set -eu
 : "${GOVC_DATACENTER:? GOVC_DATACENTER must be set }"
 : "${GOVC_USERNAME:? GOVC_USERNAME must be set }"
 : "${GOVC_PASSWORD:? GOVC_PASSWORD must be set }"
+: "${OM_URL:? OM_URL must be set }"
+: "${OM_USERNAME:? OM_USERNAME must be set }"
+: "${OM_PASSWORD:? OM_PASSWORD must be set }"
 
 state_yaml_location=config
 state_yaml=$state_yaml_location/state.yml
@@ -17,6 +20,9 @@ if [ -f "$state_yaml" ]; then
 else
     echo "$state_yaml does not exist. Proceeding with removal"
 fi
+echo "Removing all products from OpsManager"
+om -t $OM_URL -u $OM_USERNAME -p $OM_PASS -k delete-installation -f
+
 export GOVC_INSECURE=true
 opsman_ip=$(bosh int --path=/opsman-configuration/vsphere/private_ip interpolated-creds/config/opsman.yml)
 echo "Starting opsman removal if exists for $opsman_ip"
