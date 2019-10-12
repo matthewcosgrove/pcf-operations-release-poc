@@ -21,7 +21,13 @@ else
     echo "$state_yaml does not exist. Proceeding with removal"
 fi
 echo "Removing all products from OpsManager"
-om -t $OM_URL -u $OM_USERNAME -p $OM_PASSWORD -k delete-installation -f
+set +e
+om -t $OM_URL -u $OM_USERNAME -p $OM_PASSWORD -k available-products
+exit_code_to_show_opsman_is_reachable=$?
+set -e
+if [[ $exit_code_to_show_opsman_is_reachable -eq 0 ]];then
+  om -t $OM_URL -u $OM_USERNAME -p $OM_PASSWORD -k delete-installation -f
+fi
 
 export GOVC_INSECURE=true
 opsman_ip=$(bosh int --path=/opsman-configuration/vsphere/private_ip interpolated-creds/config/opsman.yml)
