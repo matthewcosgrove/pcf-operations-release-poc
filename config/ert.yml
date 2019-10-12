@@ -112,7 +112,9 @@ product-properties:
     value: internal_mysql
   .properties.credhub_key_encryption_passwords:
     value:
-    - name: my-key
+    - key:
+        secret: ((testflight_ert_properties_credhub_key_encryption_passwords_0_key))
+      name: my-domain.com
       primary: false
       provider: internal
   .properties.diego_database_max_open_connections:
@@ -168,7 +170,10 @@ product-properties:
     value: connect,query
   .properties.networking_poe_ssl_certs:
     value:
-    - name: my-domain
+    - certificate:
+        cert_pem: ((testflight_ert_properties_networking_poe_ssl_certs_0_certificate.certificate))
+        private_key_pem: ((testflight_ert_properties_networking_poe_ssl_certs_0_certificate.private_key))
+      name: my-domain
   .properties.networkpolicyserver_database_max_open_connections:
     value: 200
   .properties.networkpolicyserverinternal_database_max_open_connections:
