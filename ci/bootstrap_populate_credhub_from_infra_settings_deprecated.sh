@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+REPO_ROOT_DIR="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd ))"
+INPUT_VARS_YAML=$REPO_ROOT_DIR/ci/testflight-deployment/infra-settings.yml
 # Keeping in credhub as need to parse array
 credhub set -t value -n /concourse/main/testflight_vcenter_dns -v "$(bosh int --path=/vcenter_dns/0 $INPUT_VARS_YAML)"
 
@@ -8,8 +10,6 @@ credhub set -t value -n /concourse/main/testflight_vcenter_dns -v "$(bosh int --
 
 credhub set -t value -n /concourse/main/testflight_vcenter_ip -v $GOVC_URL
 credhub set -t value -n /concourse/main/testflight_vcenter_datacenter -v $GOVC_DATACENTER
-REPO_ROOT_DIR="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd ))"
-INPUT_VARS_YAML=$REPO_ROOT_DIR/ci/testflight-deployment/infra-settings.yml
 # Same name in infra-settings as in credhub so to test, MUST be deleted from credhub (as credhub interpolation happens first)
 credhub set -t value -n /concourse/main/testflight_opsman_hostname -v "$(bosh int --path=/testflight_opsman_hostname $INPUT_VARS_YAML)"
 credhub set -t value -n /concourse/main/testflight_opsman_vm_name -v "$(bosh int --path=/testflight_opsman_vm_name $INPUT_VARS_YAML)"
