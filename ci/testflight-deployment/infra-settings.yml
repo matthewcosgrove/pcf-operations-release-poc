@@ -33,6 +33,7 @@ opsman_ip: 10.0.0.30
 infra_ntp: 0.de.pool.ntp.org
 testflight_opsman_hostname: pcf.testflight.dell-app.com
 testflight_opsman_vm_name: Ops_Manager_TestFlight
+testflight_opsman_api_username: admin
 vcenter_netmask: 255.255.255.0
 vcenter_host_full_govc_path: /drinks-dc/host/drinks-cl/192.168.100.4
 vcenter_vms_full_govc_path: /drinks-dc/vm/hz_automation_vms
