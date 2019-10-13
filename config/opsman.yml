@@ -2,26 +2,26 @@
 opsman-configuration:
   vsphere:
     vcenter:
-      url: ((testflight_vcenter_ip))
+      url: ((vcenter_ip))
       username: ((testflight_vcenter_user))
       password: ((testflight_vcenter_password))
-      datastore: ((testflight_vcenter_datastore))
-      ca_cert: ((testflight_vcenter_ca_cert))
-      host: ((testflight_vcenter_host_full_govc_path))                     # vCenter host to deploy Ops Manager in
-      datacenter: ((testflight_vcenter_datacenter))
-      resource_pool: ((testflight_vcenter_resource_pool_full_govc_path)) # or /<Data Center Name>/host/<Cluster Name>
-      folder: ((testflight_vcenter_vms_full_govc_path))
+      datastore: ((vcenter_ds))
+      ca_cert: ((vcenter_ca_cert))
+      host: ((vcenter_host_full_govc_path))                     # vCenter host to deploy Ops Manager in
+      datacenter: ((vcenter_dc))
+      resource_pool: ((vcenter_resource_pool_full_govc_path)) # or /<Data Center Name>/host/<Cluster Name>
+      folder: ((vcenter_vms_full_govc_path))
       insecure: 1                            # default: 0 (secure); 1 (insecure)
     disk_type: thin                          # example: thin|thick
-    private_ip: ((testflight_opsman_ip))
+    private_ip: ((opsman_ip))
     dns: ((testflight_vcenter_dns))
-    ntp: ((testflight_infra_ntp))                    # example: ntp.ubuntu.com
+    ntp: ((infra_ntp))                    # example: ntp.ubuntu.com
     ssh_password: ((testflight_opsman_ssh_password))
     ssh_public_key: ((testflight_opsman_ssh_public_key))           # for Ops Manager >= 2.3, required for Ops Manager >= 2.6
     hostname: ((testflight_opsman_hostname))
-    network: ((testflight_vcenter_network))                 # vcenter network to deploy to
-    netmask: ((testflight_vcenter_netmask))
-    gateway: ((testflight_network_gateway))
+    network: ((network_name))                 # vcenter network to deploy to
+    netmask: ((vcenter_netmask))
+    gateway: ((internal_gw))
     vm_name: ((testflight_opsman_vm_name))                     # default: Ops_Manager
     memory: 8                                # default: 8 GB
     cpu: 1                                   # default: 1
