@@ -248,8 +248,10 @@ jobs:
     image: platform-automation-image
     file: platform-automation-tasks/tasks/create-vm.yml
     params:
+      VARS_FILES: vars/ci/testflight-deployment/infra-settings.yml
       OPSMAN_CONFIG_FILE: config/opsman.yml
     input_mapping:
+      vars: config
       config: interpolated-creds
       state: config
       image: downloaded-product
