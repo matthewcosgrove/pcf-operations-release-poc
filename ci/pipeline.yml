@@ -227,6 +227,7 @@ jobs:
         GOVC_DATACENTER: ((testflight_vcenter_datacenter))
         GOVC_USERNAME: (( grab meta.testflight_vcenter_user ))
         GOVC_PASSWORD: (( grab meta.testflight_vcenter_password ))
+        OM_IP: ((testflight_opsman_ip))
         OM_URL: ((testflight_opsman_url))
         OM_USERNAME: ((testflight_opsman_api_username))
         OM_PASSWORD: ((testflight_opsman_api_password))

@@ -5,6 +5,7 @@ set -eu
 : "${GOVC_DATACENTER:? GOVC_DATACENTER must be set }"
 : "${GOVC_USERNAME:? GOVC_USERNAME must be set }"
 : "${GOVC_PASSWORD:? GOVC_PASSWORD must be set }"
+: "${OM_IP:? OM_IP must be set }"
 : "${OM_URL:? OM_URL must be set }"
 : "${OM_USERNAME:? OM_USERNAME must be set }"
 : "${OM_PASSWORD:? OM_PASSWORD must be set }"
@@ -30,13 +31,12 @@ if [[ $exit_code_to_show_opsman_is_reachable -eq 0 ]];then
 fi
 
 export GOVC_INSECURE=true
-opsman_ip=$(bosh int --path=/opsman-configuration/vsphere/private_ip interpolated-creds/config/opsman.yml)
-echo "Starting opsman removal if exists for $opsman_ip"
+echo "Starting opsman removal if exists for $OM_IP"
 set +e
-echo "Output from vm.info for ip $opsman_ip NOTE: If VM does not exist the govc output will indicate so"
-govc vm.info --vm.ip $opsman_ip 
+echo "Output from vm.info for ip $OM_IP NOTE: If VM does not exist the govc output will indicate so"
+govc vm.info --vm.ip $OM_IP
 echo "Executing vm.destroy.."
-govc vm.destroy --vm.ip $opsman_ip 
+govc vm.destroy --vm.ip $OM_IP
 set -e
-echo "Completed opsman removal if exists for $opsman_ip"
+echo "Completed opsman removal if exists for $OM_IP"
 
