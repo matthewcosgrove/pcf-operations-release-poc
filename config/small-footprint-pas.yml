@@ -115,7 +115,7 @@ product-properties:
     - key:
         secret: ((testflight_ert_properties_credhub_key_encryption_passwords_0_key))
       name: my-domain.com
-      primary: false
+      primary: true
       provider: internal
   .properties.diego_database_max_open_connections:
     value: 100
