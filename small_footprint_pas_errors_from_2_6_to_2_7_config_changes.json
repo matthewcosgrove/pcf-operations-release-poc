@@ -1,0 +1,19 @@
+{
+  "errors": {
+    ".properties.cf_networking_internal_domain": [
+      "is not a property"
+    ],
+    ".properties.credhub_key_encryption_passwords": [
+      "is not a property"
+    ],
+    ".properties.router_prune_all_stale_routes": [
+      "is not a property"
+    ],
+    ".properties.syslog_agent_enabled": [
+      "is not a property"
+    ],
+    ".properties.syslog_metrics_to_syslog_enabled": [
+      "is not a property"
+    ]
+  }
+}
