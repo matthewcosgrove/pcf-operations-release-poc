@@ -194,7 +194,7 @@ jobs:
     params:
       VARS_FILES: vars/ci/testflight-deployment/infra-settings.yml
       ENV_FILE: config/env.yml
-      DIRECTOR_CONFIG_FILE: config/director-template.yml
+      DIRECTOR_CONFIG_FILE: config/director.yml
     attempts: 3
     input_mapping:
       vars: config
