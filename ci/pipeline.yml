@@ -192,10 +192,12 @@ jobs:
     image: platform-automation-image
     file: platform-automation-tasks/tasks/configure-director.yml
     params:
+      VARS_FILES: vars/ci/testflight-deployment/infra-settings.yml
       ENV_FILE: config/env.yml
       DIRECTOR_CONFIG_FILE: config/director-template.yml
     attempts: 3
     input_mapping:
+      vars: config
       config: interpolated-creds
       env: interpolated-creds
   - task: apply-director-changes

@@ -1,39 +1,39 @@
 az-configuration:
 - name: az1
   clusters:
-  - cluster: ((testflight_vcenter_cluster))
-    resource_pool: ((testflight_vcenter_rp))
+  - cluster: ((vcenter_cluster))
+    resource_pool: ((vcenter_rp))
 iaas-configurations:
 - additional_cloud_properties: {}
-  bosh_disk_path: ((testflight_vcenter_disks))
-  bosh_template_folder: ((testflight_vcenter_templates))
-  bosh_vm_folder: ((testflight_vcenter_vms))
-  datacenter: ((testflight_vcenter_datacenter))
+  bosh_disk_path: ((vcenter_disks))
+  bosh_template_folder: ((vcenter_templates))
+  bosh_vm_folder: ((vcenter_vms))
+  datacenter: ((vcenter_dc))
   disk_type: thin
-  ephemeral_datastores_string: ((testflight_vcenter_datastore))
+  ephemeral_datastores_string: ((vcenter_ds))
   name: default
   nsx_networking_enabled: false
-  persistent_datastores_string: ((testflight_vcenter_datastore))
+  persistent_datastores_string: ((vcenter_ds))
   ssl_verification_enabled: false
-  vcenter_host: ((testflight_vcenter_ip))
+  vcenter_host: ((vcenter_ip))
   vcenter_username: ((testflight_vcenter_user))
   vcenter_password: ((testflight_vcenter_password))
 network-assignment:
   network:
-    name: ((testflight_vcenter_network))
+    name: ((network_name))
   other_availability_zones: []
   singleton_availability_zone:
     name: az1
 networks-configuration:
   icmp_checks_enabled: true
   networks:
-  - name: ((testflight_vcenter_network))
+  - name: ((network_name))
     subnets:
-    - iaas_identifier: ((testflight_vcenter_network))
-      cidr: ((testflight_network_cidr))
+    - iaas_identifier: ((network_name))
+      cidr: ((internal_cidr))
       dns: ((testflight_vcenter_dns))
-      gateway: ((testflight_network_gateway))
-      reserved_ip_ranges: ((testflight_pcf_opsman_director_config_reserved_ip_ranges))
+      gateway: ((internal_gw))
+      reserved_ip_ranges: ((pcf_opsman_director_config_reserved_ip_ranges))
       availability_zone_names:
       - az1
 properties-configuration:
@@ -55,7 +55,7 @@ properties-configuration:
     keep_unreachable_vms: false
     local_blobstore_options:
       tls_enabled: true
-    ntp_servers_string: ((testflight_infra_ntp))
+    ntp_servers_string: ((infra_ntp))
     post_deploy_enabled: false
     resurrector_enabled: true
     retry_bosh_deploys: true

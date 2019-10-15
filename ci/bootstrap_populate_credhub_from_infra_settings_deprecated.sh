@@ -26,10 +26,10 @@ credhub set -t value -n /concourse/main/testflight_vcenter_netmask -v "$(bosh in
 credhub set -t value -n /concourse/main/testflight_infra_ntp -v "$(bosh int --path=/infra_ntp $INPUT_VARS_YAML)"
 
 # config/director-template.yml
-credhub set -t value -n /concourse/main/testflight_vcenter_cluster -v "$(bosh int --path=/vcenter_cluster $INPUT_VARS_YAML)"
-credhub set -t value -n /concourse/main/testflight_vcenter_rp -v "$(bosh int --path=/vcenter_rp $INPUT_VARS_YAML)"
-credhub set -t value -n /concourse/main/testflight_network_cidr -v "$(bosh int --path=/internal_cidr $INPUT_VARS_YAML)"
-credhub set -t value -n /concourse/main/testflight_pcf_opsman_director_config_reserved_ip_ranges -v "$(bosh int --path=/pcf_opsman_director_config_reserved_ip_ranges $INPUT_VARS_YAML)"
-credhub set -t value -n /concourse/main/testflight_vcenter_disks -v "$(bosh int --path=/vcenter_disks $INPUT_VARS_YAML)"
-credhub set -t value -n /concourse/main/testflight_vcenter_templates -v "$(bosh int --path=/vcenter_templates $INPUT_VARS_YAML)"
-credhub set -t value -n /concourse/main/testflight_vcenter_vms -v "$(bosh int --path=/vcenter_vms $INPUT_VARS_YAML)"
+#credhub set -t value -n /concourse/main/testflight_vcenter_cluster -v "$(bosh int --path=/vcenter_cluster $INPUT_VARS_YAML)"
+#credhub set -t value -n /concourse/main/testflight_vcenter_rp -v "$(bosh int --path=/vcenter_rp $INPUT_VARS_YAML)"
+#credhub set -t value -n /concourse/main/testflight_network_cidr -v "$(bosh int --path=/internal_cidr $INPUT_VARS_YAML)"
+#credhub set -t value -n /concourse/main/testflight_pcf_opsman_director_config_reserved_ip_ranges -v "$(bosh int --path=/pcf_opsman_director_config_reserved_ip_ranges $INPUT_VARS_YAML)"
+#credhub set -t value -n /concourse/main/testflight_vcenter_disks -v "$(bosh int --path=/vcenter_disks $INPUT_VARS_YAML)"
+#credhub set -t value -n /concourse/main/testflight_vcenter_templates -v "$(bosh int --path=/vcenter_templates $INPUT_VARS_YAML)"
+#credhub set -t value -n /concourse/main/testflight_vcenter_vms -v "$(bosh int --path=/vcenter_vms $INPUT_VARS_YAML)"
