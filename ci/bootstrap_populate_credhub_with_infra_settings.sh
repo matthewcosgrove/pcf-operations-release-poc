@@ -12,6 +12,11 @@ fi
 # Keeping in credhub as need to parse array
 credhub set -t value -n /concourse/main/testflight_vcenter_dns -v "$(bosh int --path=/vcenter_dns/0 $INPUT_VARS_YAML)"
 
+# Needed in pipeline for GOVC
+credhub set -t value -n /concourse/main/testflight_vcenter_ip -v "$(bosh int --path=/vcenter_ip $INPUT_VARS_YAML)"
+credhub set -t value -n /concourse/main/testflight_vcenter_datacenter -v "$(bosh int --path=/vcenter_dc $INPUT_VARS_YAML)"
+
+# OpsMan section
 credhub set -t value -n /concourse/main/testflight_opsman_ip -v "$(bosh int --path=/opsman_ip $INPUT_VARS_YAML)"
 credhub set -t value -n /concourse/main/testflight_opsman_url -v "https://$(bosh int --path=/opsman_ip $INPUT_VARS_YAML)"
 credhub set -t value -n /concourse/main/testflight_opsman_api_username -v "$(bosh int --path=/testflight_opsman_api_username $INPUT_VARS_YAML)"
