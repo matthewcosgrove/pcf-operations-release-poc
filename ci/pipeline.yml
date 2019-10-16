@@ -199,7 +199,7 @@ jobs:
       DIRECTOR_CONFIG_FILE: config/director.yml
     attempts: 3
     input_mapping:
-      vars: config
+      vars: testflight-state-repo
       config: interpolated-creds
       env: interpolated-creds
   - task: apply-director-changes
