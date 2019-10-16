@@ -157,7 +157,7 @@ jobs:
       VARS_FILES: vars/ci/testflight-deployment/infra-settings.yml
       OPSMAN_CONFIG_FILE: config/opsman.yml
     input_mapping:
-      vars: config
+      vars: testflight-state-repo
       config: interpolated-creds
       state: config
       image: downloaded-product
