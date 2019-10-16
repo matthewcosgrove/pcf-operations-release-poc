@@ -1,5 +1,6 @@
 meta:
   repo_uri: (( param "Please provide repo_uri" ))
+  testflight_state_repo_uri: (( param "Please provide testflight_state_repo_uri" ))
   git_tag: (( param "Please provise git_tag" ))
   git_private_key: (( param "Please provide git_private_key" ))
   ci_docker_image: (( param "Please provide ci_docker_image" ))
@@ -104,6 +105,7 @@ jobs:
       params:
         unpack: true
     - get: config
+    - get: testflight-state-repo
     - get: ci-tasks
   - task: check-opsman-via-pivotal-platform-automation-prerequisites------vcenter connectivity
     config:
@@ -165,7 +167,7 @@ jobs:
           image: platform-automation-image
           file: platform-automation-tasks/tasks/make-git-commit.yml
           input_mapping:
-            repository: config
+            repository: testflight-state-repo
             file-source: generated-state
           output_mapping:
             repository-commit: config-commit
@@ -174,7 +176,7 @@ jobs:
             FILE_DESTINATION_PATH: state.yml
             GIT_AUTHOR_NAME: "Platform Automation Bot"
             COMMIT_MESSAGE: 'Update state file'
-        - put: config
+        - put: testflight-state-repo
           params:
             repository: config-commit
             merge: true
@@ -297,6 +299,12 @@ resources:
     api_token: ((pivnet-refresh-token))
     #product_version: 2\.(.*)
     #sort_by: semver
+- name: testflight-state-repo
+  type: git
+  source:
+    uri: (( grab meta.testflight_state_repo_uri ))
+    private_key: (( grab meta.git_private_key ))
+    branch: master
 - name: config
   type: git
   source:

@@ -1,5 +1,6 @@
 meta:
   repo_uri: ((git_repo_uri))
+  testflight_state_repo_uri: ((git_testflight_state_repo_uri))
   git_tag: master
   git_private_key: ((gitlab_ssh.private_key))
   ci_docker_image: ((ci_docker_image))
