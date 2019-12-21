@@ -1,4 +1,6 @@
 #!/bin/bash
 set -eu
-credhub set -t value -n /concourse/main/pcf-operations-release/git_repo_uri -v $PCF_OPERATIONS_RELEASE_GIT_REPO_URI
-credhub set -t value -n /concourse/main/pcf-operations-release/git_testflight_state_repo_uri -v $PCF_OPERATIONS_RELEASE_TESTFLIGHT_GIT_REPO_URI
+
+PIPELINE_NAME=${PIPELINE_NAME:-pcf-automation-release}
+credhub set -t value -n /concourse/main/$PIPELINE_NAME/git_repo_uri -v $PCF_OPERATIONS_RELEASE_GIT_REPO_URI
+credhub set -t value -n /concourse/main/$PIPELINE_NAME/git_testflight_state_repo_uri -v $PCF_OPERATIONS_RELEASE_TESTFLIGHT_GIT_REPO_URI
