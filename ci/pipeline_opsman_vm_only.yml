@@ -155,7 +155,7 @@ jobs:
     file: platform-automation-tasks/tasks/create-vm.yml
     params:
       VARS_FILES: vars/ci/testflight-deployment/infra-settings.yml
-      OPSMAN_CONFIG_FILE: config/opsman.yml
+      OPSMAN_CONFIG_FILE: config/opsman_2_7.yml
     input_mapping:
       vars: testflight-state-repo
       config: interpolated-creds

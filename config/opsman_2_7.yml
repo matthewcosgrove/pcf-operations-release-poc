@@ -1,0 +1,26 @@
+---
+opsman-configuration:
+  vsphere:
+    vcenter:
+      url: ((vcenter_ip))
+      username: ((testflight_vcenter_user))
+      password: ((testflight_vcenter_password))
+      datastore: ((vcenter_ds))
+      ca_cert: ((vcenter_ca_cert))
+      host: ((vcenter_host_full_govc_path))                     # vCenter host to deploy Ops Manager in
+      datacenter: ((vcenter_dc))
+      resource_pool: ((vcenter_resource_pool_full_govc_path)) # or /<Data Center Name>/host/<Cluster Name>
+      folder: ((vcenter_vms_full_govc_path))
+      insecure: 1                            # default: 0 (secure); 1 (insecure)
+    disk_type: thin                          # example: thin|thick
+    private_ip: ((opsman_ip))
+    dns: ((testflight_vcenter_dns))
+    ntp: ((infra_ntp))                    # example: ntp.ubuntu.com
+    ssh_public_key: ((testflight_opsman_ssh_public_key))           # for Ops Manager >= 2.3, required for Ops Manager >= 2.6
+    hostname: ((testflight_opsman_hostname))
+    network: ((network_name))                 # vcenter network to deploy to
+    netmask: ((vcenter_netmask))
+    gateway: ((internal_gw))
+    vm_name: ((testflight_opsman_vm_name))                     # default: Ops_Manager
+    memory: 8                                # default: 8 GB
+    cpu: 1                                   # default: 1
