@@ -16,7 +16,6 @@ opsman-configuration:
     private_ip: ((opsman_ip))
     dns: ((testflight_vcenter_dns))
     ntp: ((infra_ntp))                    # example: ntp.ubuntu.com
-    ssh_password: ((testflight_opsman_ssh_password))
     ssh_public_key: ((testflight_opsman_ssh_public_key))           # for Ops Manager >= 2.3, required for Ops Manager >= 2.6
     hostname: ((testflight_opsman_hostname))
     network: ((network_name))                 # vcenter network to deploy to
