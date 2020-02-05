@@ -21,6 +21,9 @@ credhub set -t value -n /concourse/main/testflight_opsman_ip -v "$(bosh int --pa
 credhub set -t value -n /concourse/main/testflight_opsman_url -v "https://$(bosh int --path=/opsman_ip $INPUT_VARS_YAML)"
 credhub set -t value -n /concourse/main/testflight_opsman_api_username -v "$(bosh int --path=/testflight_opsman_api_username $INPUT_VARS_YAML)"
 
+# PAS small footprint
+credhub set -t value -n /concourse/main/testflight_vcenter_network -v "$(bosh int --path=/network_name $INPUT_VARS_YAML)"
+
 public_key=$(cat ~/.ssh/*.pub)
 echo "Warning. This might not be desired behaviour as adding public key from your location where you are running this script. This means only you will be able to access the OpsMan over ssh"
 echo "Adding testflight_opsman_ssh_public_key.."
