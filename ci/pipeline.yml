@@ -237,7 +237,6 @@ jobs:
       inputs:
       - name: ci-tasks
       - name: testflight-state-repo
-      - name: interpolated-creds
       run:
         path: ci-tasks/ci/tasks/remove-testflight-opsman-if-exists.sh
   - task: download-product
