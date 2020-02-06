@@ -10,7 +10,7 @@ set -eu
 : "${OM_USERNAME:? OM_USERNAME must be set }"
 : "${OM_PASSWORD:? OM_PASSWORD must be set }"
 
-state_yaml_location=config
+state_yaml_location=testflight-state-repo
 state_yaml=$state_yaml_location/state.yml
 if [ -f "$state_yaml" ]; then
     pushd $state_yaml_location > /dev/null
