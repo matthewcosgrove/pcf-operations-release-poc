@@ -89,7 +89,6 @@ groups:
   jobs:
   - fetch-opsman
   - fetch-small-footprint-pas
-  - fetch-pas
   - fetch-platform-automation
 - name: testflight-dependencies
   jobs:
