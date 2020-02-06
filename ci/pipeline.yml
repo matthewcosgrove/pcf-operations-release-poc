@@ -162,7 +162,7 @@ jobs:
     file: platform-automation-tasks/tasks/configure-product.yml
     params:
       ENV_FILE: config/env.yml
-      CONFIG_FILE: config/small-footprint-pas-2_7_x.yml
+      CONFIG_FILE: config/small-footprint-pas-2_8_x.yml
     input_mapping:
       config: interpolated-creds
       env: interpolated-creds
