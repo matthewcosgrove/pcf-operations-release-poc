@@ -85,17 +85,17 @@ check-pivnet: &check-pivnet
         curl -f -i -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Token $PIVNET_TOKEN" -X GET https://network.pivotal.io/api/v2/authentication
 
 groups:
-- name: pivnet-downloads
-  jobs:
-  - fetch-opsman
-  - fetch-small-footprint-pas
-  - fetch-platform-automation
 - name: testflight-dependencies
   jobs:
   - install-testflight-opsman
   - upload-and-stage-pas
   - configure-pas
   - apply-product-changes
+- name: pivnet-downloads
+  jobs:
+  - fetch-opsman
+  - fetch-small-footprint-pas
+  - fetch-platform-automation
 
 jobs:
 - name: upload-and-stage-pas
