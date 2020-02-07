@@ -32,7 +32,7 @@ interpolate-creds: &interpolate-creds
     INTERPOLATION_PATHS: config
     SKIP_MISSING: true
   input_mapping:
-    files: config
+    files: pcf-operations-release
   output_mapping:
     interpolated-files: interpolated-creds
 
@@ -110,7 +110,7 @@ jobs:
     - get: platform-automation-tasks
       params:
         unpack: true
-    - get: config
+    - get: pcf-operations-release
   - task: interpolate-creds
     <<: *interpolate-creds
   - task: download-pas
@@ -154,7 +154,7 @@ jobs:
       - get: platform-automation-tasks
         params:
           unpack: true
-      - get: config
+      - get: pcf-operations-release
   - task: interpolate-creds
     <<: *interpolate-creds
   - task: configure-pas
@@ -201,7 +201,7 @@ jobs:
     - get: platform-automation-tasks
       params:
         unpack: true
-    - get: config
+    - get: pcf-operations-release
     - get: testflight-state-repo
     - get: ci-tasks
   - task: check-opsman-via-pivotal-platform-automation-prerequisites------vcenter connectivity
@@ -255,7 +255,7 @@ jobs:
     input_mapping:
       vars: testflight-state-repo
       config: interpolated-creds
-      state: config
+      state: testflight-state-repo
       image: downloaded-product
     ensure:
       do:
@@ -360,7 +360,7 @@ jobs:
     - get: platform-automation-tasks
       params:
         unpack: true
-    - get: config
+    - get: pcf-operations-release
   - task: check-prerequisites------pivnet
     <<: *check-pivnet
   - task: check-prerequisites------s3
@@ -394,7 +394,7 @@ jobs:
     - get: platform-automation-tasks
       params:
         unpack: true
-    - get: config
+    - get: pcf-operations-release
   - task: check-prerequisites------pivnet
     <<: *check-pivnet
   - task: check-prerequisites------s3
@@ -435,7 +435,7 @@ resources:
     uri: (( grab meta.testflight_state_repo_uri ))
     private_key: (( grab meta.git_private_key ))
     branch: master
-- name: config
+- name: pcf-operations-release
   type: git
   source:
     uri: (( grab meta.repo_uri ))
