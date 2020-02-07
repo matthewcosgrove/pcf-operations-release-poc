@@ -180,13 +180,13 @@ jobs:
       - get: platform-automation-tasks
         params:
           unpack: true
-      - get: config
+      - get: pcf-operations-release
   - task: interpolate-creds
     <<: *interpolate-creds
   - task: apply-product-changes
     image: platform-automation-image
     file: platform-automation-tasks/tasks/apply-changes.yml
-    attempts: 5
+    attempts: 1
     params:
       ENV_FILE: config/env.yml
     input_mapping:
@@ -303,7 +303,7 @@ jobs:
     file: platform-automation-tasks/tasks/apply-director-changes.yml
     params:
       ENV_FILE: config/env.yml
-    attempts: 6
+    attempts: 1
     input_mapping:
       env: interpolated-creds
 
