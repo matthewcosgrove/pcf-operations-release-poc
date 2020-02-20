@@ -1,0 +1,13 @@
+---
+pivnet-api-token: ((pivnet-refresh-token))
+pivnet-file-glob: "*.pivotal"
+pivnet-product-slug: pivotal-container-service
+product-version-regex: ^1\.6\.\d+$
+stemcell-iaas: vsphere
+
+s3-endpoint: ((minio_url))
+s3-access-key-id: ((minio_access_key))
+s3-secret-access-key: ((minio_secret_key))
+s3-bucket: ((minio_pivnet_products_bucket))
+s3-region-name: ((minio_region))
+
