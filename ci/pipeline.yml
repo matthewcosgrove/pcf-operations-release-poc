@@ -88,6 +88,7 @@ groups:
 - name: testflight-dependencies
   jobs:
   - install-testflight-opsman
+  - upload-and-stage-pks
   - upload-and-stage-pas
   - configure-pas
   - apply-product-changes
@@ -95,6 +96,7 @@ groups:
   jobs:
   - fetch-opsman
   - fetch-small-footprint-pas
+  - fetch-pks
   - fetch-platform-automation
 
 jobs:
@@ -140,6 +142,50 @@ jobs:
     input_mapping:
       env: interpolated-creds
       stemcell: pas-stemcell
+
+
+- name: upload-and-stage-pks
+  serial: true
+  plan:
+  - aggregate:
+    - get: platform-automation-image
+      params:
+        unpack: true
+      trigger: true
+      passed: [ "install-testflight-opsman" ]
+    - get: platform-automation-tasks
+      params:
+        unpack: true
+    - get: pcf-operations-release
+  - task: interpolate-creds
+    <<: *interpolate-creds
+  - task: download-pks
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/download-product-s3.yml
+    params:
+      CONFIG_FILE: config/download-pks.yml
+    input_mapping:
+      config: interpolated-creds
+    output_mapping:
+      downloaded-product: pks-product
+      downloaded-stemcell: pks-stemcell
+  - task: upload-and-stage-product
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/upload-and-stage-product.yml
+    params:
+      ENV_FILE: config/env.yml
+      CONFIG_FILE: ""
+    input_mapping:
+      product: pks-product
+      env: interpolated-creds
+  - task: upload-pks-stemcell
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/upload-stemcell.yml
+    params:
+      ENV_FILE: config/env.yml
+    input_mapping:
+      env: interpolated-creds
+      stemcell: pks-stemcell
 - name: configure-pas
   serial: true
   serial_groups: [ install ]
@@ -382,6 +428,39 @@ jobs:
     - put: pas-stemcell
       params:
         file: pas-stemcell/*.tgz
+- name: fetch-pks
+  plan:
+  - aggregate:
+    - get: daily
+      trigger: true
+    - get: platform-automation-image
+      params:
+        unpack: true
+    - get: platform-automation-tasks
+      params:
+        unpack: true
+    - get: pcf-operations-release
+  - task: check-prerequisites------pivnet
+    <<: *check-pivnet
+  - task: check-prerequisites------s3
+    <<: *check-s3
+  - task: interpolate-creds
+    <<: *interpolate-creds
+  - task: download-pks-product-and-stemcell
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/download-product.yml
+    params:
+      CONFIG_FILE: config/download-pks.yml
+    input_mapping:
+      config: interpolated-creds
+    output_mapping: {downloaded-stemcell: pks-stemcell}
+  - aggregate:
+    - put: pks-product
+      params:
+        file: downloaded-product/*.pivotal
+    - put: pks-stemcell
+      params:
+        file: pks-stemcell/*.tgz
 - name: fetch-opsman
   serial: true
   plan:
@@ -476,6 +555,25 @@ resources:
     region_name: (( grab meta.minio_region ))
     secret_access_key: (( grab meta.minio_secret_key ))
     regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
+- name: pks-product
+  type: s3
+  source:
+    endpoint: (( grab meta.minio_url ))
+    access_key_id: (( grab meta.minio_access_key ))
+    bucket: (( grab meta.minio_bucket_for_pivotal_product ))
+    region_name: (( grab meta.minio_region ))
+    secret_access_key: (( grab meta.minio_secret_key ))
+    regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-.*.pivotal
+- name: pks-stemcell
+  type: s3
+  source:
+    endpoint: (( grab meta.minio_url ))
+    access_key_id: (( grab meta.minio_access_key ))
+    bucket: (( grab meta.minio_bucket_for_pivotal_product ))
+    region_name: (( grab meta.minio_region ))
+    secret_access_key: (( grab meta.minio_secret_key ))
+    regexp: /\[stemcells-ubuntu-xenial,4(.*)\]bosh-stemcell-4.*-vsphere.*\.tgz
+
 - name: platform-automation-tasks
   type: s3
   source:
